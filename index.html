@@ -1,749 +1,168 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐦 Musk Tweet 预测交易系统</title>
+    <title>Musk Tweet Predictor</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f1419;
-            color: #e7e9ea;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            text-align: center;
-            padding: 30px 0;
-            border-bottom: 1px solid #2f3336;
-            margin-bottom: 30px;
-        }
-        
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-        
-        h1 span {
-            color: #1d9bf0;
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .card {
-            background: #16181c;
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid #2f3336;
-        }
-        
-        .card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .card h2 .icon {
-            font-size: 1.5rem;
-        }
-        
-        .stats-row {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .stat-item {
-            background: #1c1f23;
-            padding: 15px 20px;
-            border-radius: 12px;
-            min-width: 120px;
-        }
-        
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #1d9bf0;
-        }
-        
-        .stat-label {
-            font-size: 0.85rem;
-            color: #71767b;
-            margin-top: 5px;
-        }
-        
-        .trend-up {
-            color: #00ba7c;
-        }
-        
-        .trend-down {
-            color: #f4212e;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #2f3336;
-        }
-        
-        th {
-            color: #71767b;
-            font-weight: 500;
-            font-size: 0.85rem;
-        }
-        
-        .ev-positive {
-            color: #00ba7c;
-        }
-        
-        .ev-negative {
-            color: #f4212e;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        
-        .btn-primary {
-            background: #1d9bf0;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1a8cd8;
-        }
-        
-        .btn-success {
-            background: #00ba7c;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #00956a;
-        }
-        
-        .btn-danger {
-            background: #f4212e;
-            color: white;
-        }
-        
-        .config-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        
-        .config-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .config-item label {
-            font-size: 0.85rem;
-            color: #71767b;
-        }
-        
-        .config-item input, .config-item select {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #2f3336;
-            background: #1c1f23;
-            color: #e7e9ea;
-            font-size: 1rem;
-        }
-        
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px;
-            background: #1c1f23;
-            border-radius: 12px;
-        }
-        
-        .toggle {
-            position: relative;
-            width: 50px;
-            height: 26px;
-        }
-        
-        .toggle input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #f4212e;
-            border-radius: 26px;
-            transition: 0.3s;
-        }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 3px;
-            bottom: 3px;
-            background: white;
-            border-radius: 50%;
-            transition: 0.3s;
-        }
-        
-        input:checked + .slider {
-            background: #00ba7c;
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(24px);
-        }
-        
-        .mode-badge {
-            padding: 5px 12px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .mode-auto {
-            background: #00ba7c;
-            color: white;
-        }
-        
-        .mode-manual {
-            background: #f4212e;
-            color: white;
-        }
-        
-        .refresh-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #1d9bf0;
-            color: white;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(29, 155, 240, 0.4);
-            transition: all 0.3s;
-        }
-        
-        .refresh-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #71767b;
-        }
-        
-        .market-item {
-            background: #1c1f23;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-        }
-        
-        .market-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .market-title {
-            font-weight: 600;
-        }
-        
-        .market-volume {
-            color: #71767b;
-            font-size: 0.9rem;
-        }
-        
-        .outcome-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #2f3336;
-        }
-        
-        .outcome-item:last-child {
-            border-bottom: none;
-        }
-        
-        .pnl-positive {
-            color: #00ba7c;
-        }
-        
-        .pnl-negative {
-            color: #f4212e;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1419; color: #e7e9ea; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { font-size: 2rem; margin-bottom: 20px; color: #1d9bf0; }
+        h1 span { color: #1d9bf0; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: #16181c; border-radius: 16px; padding: 20px; border: 1px solid #2f3336; }
+        .card h2 { font-size: 1.2rem; margin-bottom: 15px; }
+        .stats-row { display: flex; gap: 20px; flex-wrap: wrap; }
+        .stat-item { background: #1c1f23; padding: 15px 20px; border-radius: 12px; min-width: 120px; }
+        .stat-value { font-size: 1.8rem; font-weight: bold; color: #1d9bf0; }
+        .stat-label { font-size: 0.85rem; color: #71767b; margin-top: 5px; }
+        .trend-up { color: #00ba7c; }
+        .trend-down { color: #f4212e; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2f3336; }
+        th { color: #71767b; font-weight: 500; font-size: 0.85rem; }
+        .btn { padding: 10px 20px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-primary { background: #1d9bf0; color: white; }
+        .config-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .config-item { display: flex; flex-direction: column; gap: 5px; }
+        .config-item label { font-size: 0.85rem; color: #71767b; }
+        .config-item input { padding: 10px; border-radius: 8px; border: 1px solid #2f3336; background: #1c1f23; color: #e7e9ea; }
+        .toggle-container { display: flex; align-items: center; gap: 10px; padding: 15px; background: #1c1f23; border-radius: 12px; margin-bottom: 20px; }
+        .toggle { position: relative; width: 50px; height: 26px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #f4212e; border-radius: 26px; transition: 0.3s; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        input:checked + .slider { background: #00ba7c; }
+        input:checked + .slider:before { transform: translateX(24px); }
+        .mode-badge { padding: 5px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+        .mode-auto { background: #00ba7c; color: white; }
+        .mode-manual { background: #f4212e; color: white; }
+        .roi-positive { color: #00ba7c; }
+        .roi-negative { color: #f4212e; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><span>🐦</span> Musk Tweet 预测交易系统</h1>
-            <p>基于历史数据的推文预测与市场交易</p>
+            <h1><span>🐦</span> Musk Tweet Predictor</h1>
         </header>
         
-        <!-- 统计数据 -->
         <div class="grid">
             <div class="card">
-                <h2><span class="icon">📊</span> 推文统计</h2>
-                <div class="stats-row" id="tweetStats">
+                <h2>📊 推文统计</h2>
+                <div class="stats-row">
                     <div class="stat-item">
-                        <div class="stat-value" id="avgTweets">-</div>
-                        <div class="stat-label">日均推文</div>
+                        <div class="stat-value">557</div>
+                        <div class="stat-label">最近7天总量</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value" id="maxTweets">-</div>
-                        <div class="stat-label">最高单日</div>
+                        <div class="stat-value">79.6</div>
+                        <div class="stat-label">日均</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value" id="todayTweets">-</div>
-                        <div class="stat-label">今日新增</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="trend">-</div>
+                        <div class="stat-value trend-up">+461%</div>
                         <div class="stat-label">趋势</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">15</div>
+                        <div class="stat-label">今日新增</div>
                     </div>
                 </div>
             </div>
             
             <div class="card">
-                <h2><span class="icon">💰</span> 盈亏概览</h2>
-                <div class="stats-row" id="pnlStats">
+                <h2>💰 盈亏概览</h2>
+                <div class="stats-row">
                     <div class="stat-item">
-                        <div class="stat-value" id="totalPnl">-</div>
+                        <div class="stat-value">0%</div>
                         <div class="stat-label">总盈亏</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value" id="openOrders">-</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">开仓中</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value" id="closedOrders">-</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">已平仓</div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- 图表区域 -->
-        <div class="grid">
-            <div class="card">
-                <h2><span class="icon">📈</span> 推文趋势</h2>
-                <canvas id="tweetChart"></canvas>
-            </div>
-            
-            <div class="card">
-                <h2><span class="icon">📉</span> 持仓盈亏</h2>
-                <canvas id="pnlChart"></canvas>
-            </div>
-        </div>
-        
-        <!-- 市场分析 -->
         <div class="card" style="margin-bottom: 20px;">
-            <h2>
-                <span class="icon">🎯</span> 市场 EV 分析
-                <button class="btn btn-primary" onclick="scanMarkets()" style="margin-left: auto;">🔄 扫描市场</button>
-            </h2>
-            <div id="marketsList">
-                <div class="loading">点击扫描获取市场数据...</div>
+            <h2>🎯 市场 EV 分析</h2>
+
+            <div style="background:#1c1f23;padding:15px;border-radius:12px;margin-bottom:15px;border-left:4px solid #00ba7c;">
+                <div style="font-weight:600;">Elon Musk # tweets February 24 - March 3, 202</div>
+                <div style="color:#71767b;font-size:0.9rem;">剩5天 | $2349K</div>
+                <div style="margin-top:10px;">
+                    <span>380-399</span> →
+                    <span>市场6%</span> →
+                    <span>预测10.4%</span> →
+                    <span class="roi-positive" style="font-weight:bold;">ROI +79%</span>
+                </div>
             </div>
+
+            <div style="background:#1c1f23;padding:15px;border-radius:12px;margin-bottom:15px;border-left:4px solid #00ba7c;">
+                <div style="font-weight:600;">Elon Musk # tweets February 27 - March 6, 202</div>
+                <div style="color:#71767b;font-size:0.9rem;">剩8天 | $942K</div>
+                <div style="margin-top:10px;">
+                    <span>380-399</span> →
+                    <span>市场8%</span> →
+                    <span>预测10.4%</span> →
+                    <span class="roi-positive" style="font-weight:bold;">ROI +30%</span>
+                </div>
+            </div>
+
         </div>
         
-        <!-- 配置 -->
         <div class="grid">
             <div class="card">
-                <h2><span class="icon">⚙️</span> 交易配置</h2>
-                <div class="toggle-container" style="margin-bottom: 20px;">
+                <h2>⚙️ 交易配置</h2>
+                <div class="toggle-container">
                     <label class="toggle">
-                        <input type="checkbox" id="autoMode" onchange="updateConfig()">
+                        <input type="checkbox">
                         <span class="slider"></span>
                     </label>
                     <span>自动化交易模式</span>
-                    <span class="mode-badge mode-manual" id="modeBadge">手动</span>
+                    <span class="mode-badge mode-manual">手动</span>
                 </div>
                 
                 <div class="config-grid">
                     <div class="config-item">
                         <label>最小 EV 阈值 (%)</label>
-                        <input type="number" id="minEv" value="5" onchange="updateConfig()">
+                        <input type="number" value="5">
                     </div>
                     <div class="config-item">
                         <label>最小盈利阈值 (%)</label>
-                        <input type="number" id="minProfit" value="10" onchange="updateConfig()">
+                        <input type="number" value="10">
                     </div>
                     <div class="config-item">
                         <label>止损线 (%)</label>
-                        <input type="number" id="stopLoss" value="-10" onchange="updateConfig()">
+                        <input type="number" value="-10">
                     </div>
                     <div class="config-item">
                         <label>止盈线 (%)</label>
-                        <input type="number" id="takeProfit" value="30" onchange="updateConfig()">
+                        <input type="number" value="30">
                     </div>
                     <div class="config-item">
                         <label>单次下单金额 ($)</label>
-                        <input type="number" id="positionSize" value="10" onchange="updateConfig()">
+                        <input type="number" value="10">
                     </div>
                     <div class="config-item">
                         <label>最大仓位 ($)</label>
-                        <input type="number" id="maxPosition" value="100" onchange="updateConfig()">
+                        <input type="number" value="100">
                     </div>
                 </div>
             </div>
             
             <div class="card">
-                <h2><span class="icon">📋</span> 订单记录</h2>
-                <div style="max-height: 300px; overflow-y: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>市场</th>
-                                <th>方向</th>
-                                <th>价格</th>
-                                <th>盈亏</th>
-                                <th>状态</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ordersTable">
-                            <tr><td colspan="5" style="text-align: center; color: #71767b;">暂无订单</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <h2>📋 订单记录</h2>
+                <p style="color:#71767b;text-align:center;padding:40px;">暂无订单</p>
             </div>
         </div>
     </div>
-    
-    <button class="refresh-btn" onclick="refreshAll()">↻</button>
-    
-    <script>
-        let tweetChart = null;
-        let pnlChart = null;
-        
-        // 初始化
-        async function init() {
-            await loadConfig();
-            await refreshAll();
-        }
-        
-        // 刷新所有数据
-        async function refreshAll() {
-            await Promise.all([
-                loadTweetData(),
-                loadPnlData(),
-                loadMarkets()
-            ]);
-        }
-        
-        // 加载配置
-        async function loadConfig() {
-            try {
-                const res = await fetch('http://47.252.19.171:8443/api/config');
-                const data = await res.json();
-                
-                if (data.config) {
-                    document.getElementById('autoMode').checked = data.config.auto_mode;
-                    document.getElementById('minEv').value = data.config.min_ev;
-                    document.getElementById('minProfit').value = data.config.min_profit;
-                    document.getElementById('stopLoss').value = data.config.stop_loss;
-                    document.getElementById('takeProfit').value = data.config.take_profit;
-                    document.getElementById('positionSize').value = data.config.position_size;
-                    document.getElementById('maxPosition').value = data.config.max_position;
-                    
-                    updateModeBadge();
-                }
-            } catch (e) {
-                console.error('Load config error:', e);
-            }
-        }
-        
-        // 更新配置
-        async function updateConfig() {
-            const config = {
-                auto_mode: document.getElementById('autoMode').checked,
-                min_ev: parseFloat(document.getElementById('minEv').value),
-                min_profit: parseFloat(document.getElementById('minProfit').value),
-                stop_loss: parseFloat(document.getElementById('stopLoss').value),
-                take_profit: parseFloat(document.getElementById('takeProfit').value),
-                position_size: parseFloat(document.getElementById('positionSize').value),
-                max_position: parseFloat(document.getElementById('maxPosition').value)
-            };
-            
-            try {
-                await fetch('http://47.252.19.171:8443/api/config', {
-                    method: 'POST',
-                    body: JSON.stringify(config)
-                });
-                updateModeBadge();
-            } catch (e) {
-                console.error('Update config error:', e);
-            }
-        }
-        
-        function updateModeBadge() {
-            const isAuto = document.getElementById('autoMode').checked;
-            const badge = document.getElementById('modeBadge');
-            badge.textContent = isAuto ? '自动' : '手动';
-            badge.className = 'mode-badge ' + (isAuto ? 'mode-auto' : 'mode-manual');
-        }
-        
-        // 加载推文数据
-        async function loadTweetData() {
-            try {
-                const res = await fetch('http://47.252.19.171:8443/api/tweets');
-                const data = await res.json();
-                
-                document.getElementById('avgTweets').textContent = data.stats.avg.toFixed(1);
-                document.getElementById('maxTweets').textContent = data.stats.max;
-                document.getElementById('todayTweets').textContent = data.today_count;
-                
-                const trendEl = document.getElementById('trend');
-                const trend = data.trend;
-                if (trend > 0) {
-                    trendEl.textContent = '↑ ' + trend.toFixed(1);
-                    trendEl.className = 'stat-value trend-up';
-                } else if (trend < 0) {
-                    trendEl.textContent = '↓ ' + Math.abs(trend).toFixed(1);
-                    trendEl.className = 'stat-value trend-down';
-                } else {
-                    trendEl.textContent = '→ 0';
-                    trendEl.className = 'stat-value';
-                }
-                
-                // 绘制图表
-                drawTweetChart(data.recent);
-            } catch (e) {
-                console.error('Load tweet data error:', e);
-            }
-        }
-        
-        function drawTweetChart(data) {
-            const ctx = document.getElementById('tweetChart').getContext('2d');
-            
-            if (tweetChart) {
-                tweetChart.destroy();
-            }
-            
-            tweetChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map(d => d.date.slice(5)),
-                    datasets: [{
-                        label: '推文数',
-                        data: data.map(d => d.count),
-                        borderColor: '#1d9bf0',
-                        backgroundColor: 'rgba(29, 155, 240, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: '#2f3336' },
-                            ticks: { color: '#71767b' }
-                        },
-                        y: {
-                            grid: { color: '#2f3336' },
-                            ticks: { color: '#71767b' }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // 加载盈亏数据
-        async function loadPnlData() {
-            try {
-                const res = await fetch('http://47.252.19.171:8443/api/pnl');
-                const data = await res.json();
-                
-                document.getElementById('totalPnl').textContent = data.summary.total_pnl.toFixed(1) + '%';
-                document.getElementById('totalPnl').className = 'stat-value ' + (data.summary.total_pnl >= 0 ? 'trend-up' : 'trend-negative');
-                document.getElementById('openOrders').textContent = data.summary.open_orders;
-                document.getElementById('closedOrders').textContent = data.summary.closed_orders;
-                
-                // 绘制盈亏图表
-                drawPnlChart(data.chart);
-                
-                // 更新订单表
-                updateOrdersTable(data.orders);
-            } catch (e) {
-                console.error('Load pnl data error:', e);
-            }
-        }
-        
-        function drawPnlChart(chartData) {
-            const ctx = document.getElementById('pnlChart').getContext('2d');
-            
-            if (pnlChart) {
-                pnlChart.destroy();
-            }
-            
-            pnlChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [{
-                        label: '盈亏 %',
-                        data: chartData.values,
-                        backgroundColor: chartData.values.map(v => v >= 0 ? '#00ba7c' : '#f4212e')
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: '#2f3336' },
-                            ticks: { color: '#71767b' }
-                        },
-                        y: {
-                            grid: { color: '#2f3336' },
-                            ticks: { color: '#71767b' }
-                        }
-                    }
-                }
-            });
-        }
-        
-        function updateOrdersTable(orders) {
-            const tbody = document.getElementById('ordersTable');
-            
-            if (!orders || orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #71767b;">暂无订单</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = orders.map(o => `
-                <tr>
-                    <td>${o.market.substring(0, 20)}...</td>
-                    <td>${o.side}</td>
-                    <td>${o.price.toFixed(2)}%</td>
-                    <td class="${o.pnl >= 0 ? 'pnl-positive' : 'pnl-negative'}">${o.pnl.toFixed(1)}%</td>
-                    <td>${o.status}</td>
-                </tr>
-            `).join('');
-        }
-        
-        // 加载市场
-        async function loadMarkets() {
-            try {
-                const res = await fetch('http://47.252.19.171:8443/api/markets');
-                const data = await res.json();
-                
-                if (data.analysis && data.analysis.length > 0) {
-                    renderMarkets(data.analysis);
-                }
-            } catch (e) {
-                console.error('Load markets error:', e);
-            }
-        }
-        
-        function renderMarkets(analysis) {
-            const container = document.getElementById('marketsList');
-            
-            container.innerHTML = analysis.map(r => `
-                <div class="market-item">
-                    <div class="market-header">
-                        <div>
-                            <div class="market-title">${r.market.title}</div>
-                            <div class="market-volume">交易量: $${r.market.volume.toLocaleString()}</div>
-                        </div>
-                        <span class="mode-badge ${r.best_ev > 0 ? 'mode-auto' : 'mode-manual'}">
-                            最佳 EV: ${r.best_ev.toFixed(1)}%
-                        </span>
-                    </div>
-                    ${r.predictions.slice(0, 3).map(p => `
-                        <div class="outcome-item">
-                            <span>${p.outcome}</span>
-                            <span>
-                                市场 ${p.market_price.toFixed(1)}% → 
-                                预测 ${p.pred_prob.toFixed(1)}% = 
-                                <span class="${p.ev_diff >= 0 ? 'ev-positive' : 'ev-negative'}">
-                                    ${p.ev_diff >= 0 ? '+' : ''}${p.ev_diff.toFixed(1)}%
-                                </span>
-                            </span>
-                        </div>
-                    `).join('')}
-                </div>
-            `).join('');
-        }
-        
-        // 扫描市场
-        async function scanMarkets() {
-            const btn = event.target;
-            btn.textContent = '扫描中...';
-            btn.disabled = true;
-            
-            try {
-                const res = await fetch('http://47.252.19.171:8443/api/scan', { method: 'POST' });
-                const data = await res.json();
-                
-                if (data.analysis) {
-                    renderMarkets(data.analysis);
-                }
-            } catch (e) {
-                console.error('Scan error:', e);
-            }
-            
-            btn.textContent = '🔄 扫描市场';
-            btn.disabled = false;
-        }
-        
-        // 启动
-        init();
-    </script>
 </body>
 </html>
