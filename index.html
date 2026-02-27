@@ -483,7 +483,7 @@
         // 加载配置
         async function loadConfig() {
             try {
-                const res = await fetch('http://47.252.19.171:8080/api/config');
+                const res = await fetch('https://47.252.19.171:8080/api/config');
                 const data = await res.json();
                 
                 if (data.config) {
@@ -515,7 +515,7 @@
             };
             
             try {
-                await fetch('http://47.252.19.171:8080/api/config', {
+                await fetch('https://47.252.19.171:8080/api/config', {
                     method: 'POST',
                     body: JSON.stringify(config)
                 });
@@ -535,7 +535,7 @@
         // 加载推文数据
         async function loadTweetData() {
             try {
-                const res = await fetch('http://47.252.19.171:8080/api/tweets');
+                const res = await fetch('https://47.252.19.171:8080/api/tweets');
                 const data = await res.json();
                 
                 document.getElementById('avgTweets').textContent = data.stats.avg.toFixed(1);
@@ -604,7 +604,7 @@
         // 加载盈亏数据
         async function loadPnlData() {
             try {
-                const res = await fetch('http://47.252.19.171:8080/api/pnl');
+                const res = await fetch('https://47.252.19.171:8080/api/pnl');
                 const data = await res.json();
                 
                 document.getElementById('totalPnl').textContent = data.summary.total_pnl.toFixed(1) + '%';
@@ -680,7 +680,7 @@
         // 加载市场
         async function loadMarkets() {
             try {
-                const res = await fetch('http://47.252.19.171:8080/api/markets');
+                const res = await fetch('https://47.252.19.171:8080/api/markets');
                 const data = await res.json();
                 
                 if (data.analysis && data.analysis.length > 0) {
@@ -728,7 +728,7 @@
             btn.disabled = true;
             
             try {
-                const res = await fetch('http://47.252.19.171:8080/api/scan', { method: 'POST' });
+                const res = await fetch('https://47.252.19.171:8080/api/scan', { method: 'POST' });
                 const data = await res.json();
                 
                 if (data.analysis) {
